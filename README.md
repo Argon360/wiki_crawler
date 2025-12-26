@@ -1,37 +1,74 @@
 # WikiCrawler
 
-**Find link paths across Wikipedia pages — BFS, Best-First, or Bidirectional — with flowcharts and explanations.**
+**Find link paths across Wikipedia pages — BFS, Best-First, or Bidirectional — with AI-powered explanations.**
 
-WikiCrawler is a Python command-line tool that finds a link path between two Wikipedia articles using only internal article links. It supports multiple search strategies (guaranteed shortest or heuristic), records decision metadata so it can explain each hop, and can generate a compact flowchart (PNG) highlighting the final path. Built to power the “Wikipedia Game” and to experiment with search strategies on real-world article graphs.
+WikiCrawler is a Python command-line tool that finds a link path between two Wikipedia articles using only internal article links. It supports multiple search strategies (guaranteed shortest or heuristic) and uses Google's Gemini AI to provide rich, context-aware explanations of the path found.
 
 ---
 
 ## Features
 
-- Search strategies:
-  - `bfs` — uni-directional breadth-first search (guaranteed shortest path in clicks).
-  - `best` — greedy best-first using a title-similarity heuristic (fast, not guaranteed).
-  - `bidi` — bidirectional BFS using `prop=linkshere` (exact shortest path, much faster).
-- Verbose tracing of API calls, queue activity and decisions.
-- Decision trace: stores *why* an edge was enqueued (method, depth, heuristic score when applicable).
-- Explanation generator: human-readable step-by-step explanation of the final path.
-- Flowchart generation (PNG) with multiple modes to avoid clutter:
-  - `path-only`, `path-neighbors`, `pruned`, `full`.
-- In-memory caching of `prop=links` and `prop=linkshere` responses for the run.
-- Polite API usage with configurable sleep between requests.
-- Optional explanation saved to file and PNG flowchart output.
+- **Search Strategies**:
+  - `bfs`: Breadth-first search (guaranteed shortest path).
+  - `best`: Heuristic best-first search (fast).
+  - `bidi`: **Bidirectional BFS** (fastest & exact, default).
+- **AI Integration**: Uses Google Gemini (via `gemini-2.5-flash`) to explain *why* links exist and score potential paths.
+- **Visualizations**: Generates flowcharts (PNG) of the crawl graph.
+- **Robust**: Retries on API errors, handles missing keys gracefully, and caches results.
 
 ---
 
-## Requirements
+## Setup
 
-- Python 3.9+
-- Pip packages:
-  - `requests`
-  - `networkx`
-  - `matplotlib`
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-username/wiki_crawler.git
+    cd wiki_crawler
+    ```
 
-Install dependencies:
+2.  **Create a virtual environment**:
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
 
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *(Note: Create a `requirements.txt` with `requests`, `networkx`, `matplotlib`, `beautifulsoup4`, `python-dotenv`)*
+
+4.  **Configure API Key** (Optional but recommended):
+    Create a `.env` file in the root directory:
+    ```bash
+    GEMINI_API_KEY="your_google_ai_studio_key"
+    ```
+    Get a key from [Google AI Studio](https://aistudio.google.com/).
+
+---
+
+## Usage
+
+**Basic Path Finding:**
 ```bash
-pip3 install requests networkx matplotlib
+python3 wiki_crawler.py --start "Python (programming language)" --target "C (programming language)"
+```
+
+**With AI Explanations & Flowchart:**
+```bash
+python3 wiki_crawler.py \
+  --start "Narendra Modi" \
+  --target "Nuclear weapon" \
+  --strategy bidi \
+  --use-llm-hopping \
+  --flowchart path_graph.png
+```
+
+---
+
+## Testing
+
+Run the unit tests:
+```bash
+python3 test_wiki_crawler.py
+```
